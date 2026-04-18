@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Login — Smart ATS{% endblock %}
+{% block content %}
+
+<div class="min-vh-100 d-flex align-items-center" style="padding:5rem 0">
+  <div class="hero-bg"><div class="hero-glow-1"></div></div>
+  <div class="container position-relative">
+    <div class="row justify-content-center">
+      <div class="col-md-5 col-lg-4">
+
+        <div class="text-center mb-4 anim-fade-up">
+          <div class="brand-icon mx-auto mb-3" style="width:52px;height:52px;font-size:1.4rem">
+            <i class="bi bi-cpu-fill"></i>
+          </div>
+          <h2 class="mb-1" style="font-family:var(--font-display)">Welcome back</h2>
+          <p class="text-secondary small">Sign in to your Smart ATS account</p>
+        </div>
+
+        <div class="ats-card anim-fade-up-1">
+          <form id="loginForm">
+            <div class="mb-3">
+              <label class="form-label">Email address</label>
+              <input type="email" class="form-control" id="loginEmail" placeholder="you@email.com" required/>
+            </div>
+            <div class="mb-4">
+              <label class="form-label">Password</label>
+              <div class="position-relative">
+                <input type="password" class="form-control" id="loginPassword" placeholder="••••••••" required/>
+                <button type="button" class="btn p-0 position-absolute top-50 end-0 translate-middle-y me-3" onclick="togglePwd('loginPassword',this)" style="background:none;border:none;color:var(--text-muted)">
+                  <i class="bi bi-eye-slash"></i>
+                </button>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 btn-lg" id="loginBtn">
+              <span id="loginBtnText"><i class="bi bi-box-arrow-in-right me-2"></i>Sign In</span>
+              <span id="loginSpinner" class="d-none"><span class="spinner-border spinner-border-sm me-2"></span>Signing in…</span>
+            </button>
+          </form>
+        </div>
+
+        <p class="text-center text-secondary small mt-3">
+          Don't have an account? <a href="/register" class="text-accent fw-semibold">Create one free</a>
+        </p>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script>
+function togglePwd(id, btn) {
+  const inp = document.getElementById(id);
+  const isText = inp.type === 'text';
+  inp.type = isText ? 'password' : 'text';
+  btn.innerHTML = `<i class="bi bi-eye${isText ? '-slash' : ''}"></i>`;
+}
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn     = document.getElementById('loginBtn');
+  const btnText = document.getElementById('loginBtnText');
+  const spinner = document.getElementById('loginSpinner');
+
+  btnText.classList.add('d-none');
+  spinner.classList.remove('d-none');
+  btn.disabled = true;
+
+  try {
+    const data = await apiCall('POST', '/auth/login', {
+      email: document.getElementById('loginEmail').value,
+      password: document.getElementById('loginPassword').value
+    });
+    setAuth(data.access_token, data.user);
+    showToast('Welcome back, ' + (data.user.username || 'User') + '!', 'success');
+    const params = new URLSearchParams(window.location.search);
+    setTimeout(() => window.location.href = params.get('next') || '/dashboard', 600);
+  } catch (err) {
+    showToast(err.message || 'Login failed', 'error');
+    btnText.classList.remove('d-none');
+    spinner.classList.add('d-none');
+    btn.disabled = false;
+  }
+});
+</script>
+{% endblock %}

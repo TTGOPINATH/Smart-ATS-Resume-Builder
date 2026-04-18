@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Register — Smart ATS{% endblock %}
+{% block content %}
+
+<div class="min-vh-100 d-flex align-items-center" style="padding:5rem 0">
+  <div class="hero-bg"><div class="hero-glow-2"></div></div>
+  <div class="container position-relative">
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-5">
+
+        <div class="text-center mb-4 anim-fade-up">
+          <div class="brand-icon mx-auto mb-3" style="width:52px;height:52px;font-size:1.4rem"><i class="bi bi-cpu-fill"></i></div>
+          <h2 class="mb-1" style="font-family:var(--font-display)">Create your account</h2>
+          <p class="text-secondary small">Start building ATS-optimized resumes for free</p>
+        </div>
+
+        <div class="ats-card anim-fade-up-1">
+          <form id="registerForm">
+            <div class="row g-3 mb-3">
+              <div class="col-12">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="regName" placeholder="Jane Doe"/>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Username <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="regUsername" placeholder="janedoe" required/>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Email address <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" id="regEmail" placeholder="you@email.com" required/>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Password <span class="text-danger">*</span></label>
+                <div class="position-relative">
+                  <input type="password" class="form-control" id="regPassword" placeholder="Min 6 characters" required minlength="6"/>
+                  <button type="button" class="btn p-0 position-absolute top-50 end-0 translate-middle-y me-3" onclick="togglePwd2()" style="background:none;border:none;color:var(--text-muted)">
+                    <i class="bi bi-eye-slash" id="regPwdIcon"></i>
+                  </button>
+                </div>
+                <div class="mt-2" id="pwdStrengthBar" style="display:none">
+                  <div class="ats-progress"><div class="ats-progress-fill" id="pwdStrengthFill" style="width:0%;transition:width 0.3s"></div></div>
+                  <small id="pwdStrengthText" class="text-muted"></small>
+                </div>
+              </div>
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="termsCheck" required/>
+              <label class="form-check-label text-secondary small" for="termsCheck">
+                I agree to the <a href="#" class="text-accent">Terms of Service</a> and <a href="#" class="text-accent">Privacy Policy</a>
+              </label>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 btn-lg" id="regBtn">
+              <span id="regBtnText"><i class="bi bi-person-plus me-2"></i>Create Free Account</span>
+              <span id="regSpinner" class="d-none"><span class="spinner-border spinner-border-sm me-2"></span>Creating account…</span>
+            </button>
+          </form>
+        </div>
+
+        <div class="ats-card ats-card-sm mt-3 anim-fade-up-2">
+          <div class="row text-center g-2">
+            <div class="col-4"><i class="bi bi-shield-check text-success-ats d-block mb-1"></i><small class="text-muted" style="font-size:0.75rem">Secure & Private</small></div>
+            <div class="col-4"><i class="bi bi-credit-card-2-off text-accent d-block mb-1"></i><small class="text-muted" style="font-size:0.75rem">No Card Needed</small></div>
+            <div class="col-4"><i class="bi bi-lightning-fill text-warn d-block mb-1"></i><small class="text-muted" style="font-size:0.75rem">Instant Access</small></div>
+          </div>
+        </div>
+
+        <p class="text-center text-secondary small mt-3">
+          Already have an account? <a href="/login" class="text-accent fw-semibold">Sign in</a>
+        </p>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script>
+function togglePwd2() {
+  const inp = document.getElementById('regPassword');
+  const icon = document.getElementById('regPwdIcon');
+  const isText = inp.type === 'text';
+  inp.type = isText ? 'password' : 'text';
+  icon.className = `bi bi-eye${isText ? '-slash' : ''}`;
+}
+
+document.getElementById('regPassword').addEventListener('input', function() {
+  const bar = document.getElementById('pwdStrengthBar');
+  const fill = document.getElementById('pwdStrengthFill');
+  const text = document.getElementById('pwdStrengthText');
+  const v = this.value;
+  if (!v) { bar.style.display = 'none'; return; }
+  bar.style.display = 'block';
+  let strength = 0;
+  if (v.length >= 6) strength++;
+  if (v.length >= 10) strength++;
+  if (/[A-Z]/.test(v)) strength++;
+  if (/[0-9]/.test(v)) strength++;
+  if (/[^A-Za-z0-9]/.test(v)) strength++;
+  const pct = (strength / 5) * 100;
+  fill.style.width = pct + '%';
+  const colors = ['#ef233c','#ff9500','#ffd60a','#3a86ff','#06d6a0'];
+  const labels = ['Very Weak','Weak','Fair','Strong','Very Strong'];
+  fill.style.background = colors[strength - 1] || '#ef233c';
+  text.textContent = labels[strength - 1] || '';
+  text.style.color = colors[strength - 1] || '#ef233c';
+});
+
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('regBtn');
+  document.getElementById('regBtnText').classList.add('d-none');
+  document.getElementById('regSpinner').classList.remove('d-none');
+  btn.disabled = true;
+
+  try {
+    const data = await apiCall('POST', '/auth/register', {
+      full_name: document.getElementById('regName').value,
+      username:  document.getElementById('regUsername').value,
+      email:     document.getElementById('regEmail').value,
+      password:  document.getElementById('regPassword').value
+    });
+    setAuth(data.access_token, data.user);
+    showToast('Account created! Welcome to Smart ATS 🎉', 'success');
+    setTimeout(() => window.location.href = '/dashboard', 800);
+  } catch (err) {
+    showToast(err.message || 'Registration failed', 'error');
+    document.getElementById('regBtnText').classList.remove('d-none');
+    document.getElementById('regSpinner').classList.add('d-none');
+    btn.disabled = false;
+  }
+});
+</script>
+{% endblock %}

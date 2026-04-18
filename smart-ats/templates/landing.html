@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% block title %}Smart ATS — AI Resume Builder & Optimizer{% endblock %}
+{% block content %}
+
+<!-- Hero -->
+<section class="hero-section">
+  <div class="hero-bg"><div class="hero-glow-1"></div><div class="hero-glow-2"></div></div>
+  <div class="container-xl position-relative">
+    <div class="row align-items-center gy-5">
+      <div class="col-lg-6">
+        <div class="anim-fade-up">
+          <span class="badge badge-free mb-3 px-3 py-2"><i class="bi bi-stars me-1"></i>AI-Powered Resume Optimization</span>
+          <h1 class="display-headline mb-4">
+            Get <span class="gradient-text">Hired Faster</span><br/>with Smart ATS
+          </h1>
+          <p class="fs-5 mb-4" style="color:#9898b0;max-width:480px">
+            Build ATS-optimized resumes, score against job descriptions, and get AI-powered suggestions — all in one platform.
+          </p>
+          <div class="d-flex flex-wrap gap-3">
+            <a href="/register" class="btn btn-primary btn-hero">
+              <i class="bi bi-rocket-takeoff me-2"></i>Start for Free
+            </a>
+            <a href="#features" class="btn btn-outline-light btn-hero">
+              <i class="bi bi-play-circle me-2"></i>See How It Works
+            </a>
+          </div>
+          <div class="d-flex gap-4 mt-4 flex-wrap">
+            <div class="d-flex align-items-center gap-2 text-secondary small">
+              <i class="bi bi-shield-check text-success-ats"></i>No credit card required
+            </div>
+            <div class="d-flex align-items-center gap-2 text-secondary small">
+              <i class="bi bi-lightning-fill text-accent"></i>Set up in 2 minutes
+            </div>
+            <div class="d-flex align-items-center gap-2 text-secondary small">
+              <i class="bi bi-people-fill" style="color:#ffd60a"></i>10,000+ resumes built
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 anim-fade-up-2">
+        <!-- Live Score Preview Card -->
+        <div class="ats-card card-glow" style="max-width:420px;margin:0 auto">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="section-label mb-0">ATS Score Preview</span>
+            <span class="badge-pro">PRO FEATURE</span>
+          </div>
+          <div class="d-flex align-items-center gap-4 mb-4">
+            <div class="score-ring-wrapper">
+              <svg class="score-ring" width="110" height="110" viewBox="0 0 110 110">
+                <circle class="score-ring-bg" cx="55" cy="55" r="46"/>
+                <circle class="score-ring-fill" cx="55" cy="55" r="46" id="heroRingFill"
+                  style="stroke-dasharray:289;stroke-dashoffset:60;stroke:#06d6a0"/>
+              </svg>
+              <div class="score-ring-text">
+                <div class="score-ring-number" style="color:#06d6a0">79</div>
+                <div class="score-ring-label">/ 100</div>
+              </div>
+            </div>
+            <div class="flex-1">
+              <div class="grade-badge grade-B mb-2">B</div>
+              <p class="small text-secondary mb-0">Good match! A few improvements can push to A.</p>
+            </div>
+          </div>
+          <div class="mb-2">
+            <div class="d-flex justify-content-between small mb-1"><span class="text-secondary">Keyword Match</span><span class="text-accent fw-bold">32/40</span></div>
+            <div class="ats-progress"><div class="ats-progress-fill" style="width:80%;background:#3a86ff"></div></div>
+          </div>
+          <div class="mb-2">
+            <div class="d-flex justify-content-between small mb-1"><span class="text-secondary">Section Completeness</span><span style="color:#06d6a0" class="fw-bold">18/20</span></div>
+            <div class="ats-progress"><div class="ats-progress-fill" style="width:90%;background:#06d6a0"></div></div>
+          </div>
+          <div class="mb-2">
+            <div class="d-flex justify-content-between small mb-1"><span class="text-secondary">Formatting Score</span><span class="fw-bold" style="color:#ffd60a">14/20</span></div>
+            <div class="ats-progress"><div class="ats-progress-fill" style="width:70%;background:#ffd60a"></div></div>
+          </div>
+          <div class="mb-3">
+            <div class="d-flex justify-content-between small mb-1"><span class="text-secondary">JD Match</span><span class="fw-bold" style="color:#3a86ff">15/20</span></div>
+            <div class="ats-progress"><div class="ats-progress-fill" style="width:75%;background:#3a86ff"></div></div>
+          </div>
+          <div class="d-flex flex-wrap gap-1">
+            <span class="skill-tag-present skill-tag">Python</span>
+            <span class="skill-tag-present skill-tag">FastAPI</span>
+            <span class="skill-tag-missing skill-tag">Docker</span>
+            <span class="skill-tag-missing skill-tag">Kubernetes</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats bar -->
+<section class="py-4" style="background:var(--bg-secondary);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="container-xl">
+    <div class="row text-center gy-3">
+      <div class="col-6 col-md-3"><div class="stat-value">10K+</div><div class="stat-label">Resumes Built</div></div>
+      <div class="col-6 col-md-3"><div class="stat-value">94%</div><div class="stat-label">Interview Rate</div></div>
+      <div class="col-6 col-md-3"><div class="stat-value">3min</div><div class="stat-label">Avg Setup Time</div></div>
+      <div class="col-6 col-md-3"><div class="stat-value">100</div><div class="stat-label">ATS Score Max</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="py-6" id="features" style="padding:5rem 0">
+  <div class="container-xl">
+    <div class="text-center mb-5">
+      <span class="badge badge-free mb-2">Features</span>
+      <h2 class="display-headline" style="font-size:clamp(1.8rem,4vw,2.8rem)">Everything You Need to<br/><span class="gradient-text">Land the Job</span></h2>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4 anim-fade-up-1">
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(58,134,255,0.12)"><i class="bi bi-cpu-fill text-accent"></i></div>
+          <h5 class="mb-2">ATS Score Engine</h5>
+          <p class="small mb-0">Get a real ATS score out of 100. Know exactly where your resume stands before you apply.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 anim-fade-up-2">
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(6,214,160,0.12)"><i class="bi bi-pencil-square" style="color:#06d6a0"></i></div>
+          <h5 class="mb-2">Resume Builder</h5>
+          <p class="small mb-0">Guided form-based builder with sections for skills, education, experience, and projects.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 anim-fade-up-3">
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(255,214,10,0.12)"><i class="bi bi-file-earmark-arrow-up" style="color:#ffd60a"></i></div>
+          <h5 class="mb-2">Resume Parser</h5>
+          <p class="small mb-0">Upload your existing PDF or DOCX resume and get instant analysis and extracted data.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 anim-fade-up-1">
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(239,35,60,0.1)"><i class="bi bi-briefcase-fill" style="color:#ef233c"></i></div>
+          <h5 class="mb-2">JD Matching</h5>
+          <p class="small mb-0">Paste any job description and see which keywords you're missing — and which you already have.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 anim-fade-up-2">
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(168,85,247,0.12)"><i class="bi bi-stars" style="color:#a855f7"></i></div>
+          <h5 class="mb-2">AI Optimizer</h5>
+          <p class="small mb-0">AI-generated suggestions to rewrite bullet points, improve your summary, and boost your score.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 anim-fade-up-3">
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(58,134,255,0.12)"><i class="bi bi-file-pdf-fill text-accent"></i></div>
+          <h5 class="mb-2">PDF Download</h5>
+          <p class="small mb-0">Download a clean, ATS-friendly PDF. Pro users get watermark-free, print-ready output.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section style="padding:5rem 0;background:var(--bg-secondary);border-top:1px solid var(--border)">
+  <div class="container-xl">
+    <div class="text-center mb-5">
+      <h2 class="display-headline" style="font-size:clamp(1.8rem,4vw,2.8rem)">How It <span class="gradient-text">Works</span></h2>
+    </div>
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-3 text-center">
+        <div class="mb-3" style="width:60px;height:60px;background:var(--accent-dim);border:1px solid var(--border-glow);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;font-family:var(--font-display);font-size:1.4rem;font-weight:800;color:var(--accent)">1</div>
+        <h6 class="mb-2">Create Account</h6>
+        <p class="small text-secondary">Sign up free in seconds. No credit card needed.</p>
+      </div>
+      <div class="col-md-3 text-center">
+        <div class="mb-3" style="width:60px;height:60px;background:rgba(6,214,160,0.1);border:1px solid rgba(6,214,160,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;font-family:var(--font-display);font-size:1.4rem;font-weight:800;color:#06d6a0">2</div>
+        <h6 class="mb-2">Build or Upload</h6>
+        <p class="small text-secondary">Build a resume from scratch or upload your existing one.</p>
+      </div>
+      <div class="col-md-3 text-center">
+        <div class="mb-3" style="width:60px;height:60px;background:rgba(255,214,10,0.1);border:1px solid rgba(255,214,10,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;font-family:var(--font-display);font-size:1.4rem;font-weight:800;color:#ffd60a">3</div>
+        <h6 class="mb-2">Get Your Score</h6>
+        <p class="small text-secondary">Paste a job description and get your ATS score instantly.</p>
+      </div>
+      <div class="col-md-3 text-center">
+        <div class="mb-3" style="width:60px;height:60px;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;font-family:var(--font-display);font-size:1.4rem;font-weight:800;color:#a855f7">4</div>
+        <h6 class="mb-2">Optimize & Apply</h6>
+        <p class="small text-secondary">Apply AI suggestions and download your perfect resume.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section style="padding:5rem 0">
+  <div class="container-xl text-center">
+    <h2 class="display-headline mb-4" style="font-size:clamp(1.8rem,4vw,2.6rem)">Ready to Land Your<br/><span class="gradient-text">Dream Job?</span></h2>
+    <p class="mb-4 text-secondary fs-5">Join thousands of job seekers using Smart ATS to get noticed.</p>
+    <a href="/register" class="btn btn-primary btn-hero btn-lg">
+      <i class="bi bi-rocket-takeoff me-2"></i>Get Started — It's Free
+    </a>
+    <p class="mt-3 text-muted small">Free forever plan available. Upgrade anytime for Pro features.</p>
+  </div>
+</section>
+
+{% endblock %}

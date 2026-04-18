@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Payment Successful — Smart ATS{% endblock %}
+{% block content %}
+
+<div class="container" style="padding:6rem 0;max-width:560px">
+  <div class="text-center anim-fade-up">
+
+    <!-- Animated checkmark -->
+    <div class="success-circle mx-auto mb-4">
+      <svg viewBox="0 0 80 80" class="success-svg">
+        <circle class="success-ring" cx="40" cy="40" r="34"/>
+        <polyline class="success-check" points="24,42 35,53 56,28"/>
+      </svg>
+    </div>
+
+    <h1 class="mb-2" style="font-family:var(--font-display);font-size:2rem">
+      Welcome to <span class="gradient-text">Smart ATS Pro!</span>
+    </h1>
+    <p class="text-secondary fs-5 mb-4" id="successSubtitle">
+      Your subscription is now active.
+    </p>
+
+    <!-- Receipt card -->
+    <div class="ats-card mb-4 text-start" id="receiptCard">
+      <div class="section-label"><i class="bi bi-receipt"></i>Payment Receipt</div>
+      <div class="row g-2">
+        <div class="col-6"><span class="text-muted small">Plan</span><div class="fw-semibold" id="rcPlan">—</div></div>
+        <div class="col-6"><span class="text-muted small">Amount</span><div class="fw-semibold" id="rcAmount">—</div></div>
+        <div class="col-6"><span class="text-muted small">Valid Until</span><div class="fw-semibold" id="rcExpires">—</div></div>
+        <div class="col-6"><span class="text-muted small">Payment ID</span><div class="fw-semibold" style="font-size:0.8rem;word-break:break-all" id="rcPayId">—</div></div>
+      </div>
+      <hr style="border-color:var(--border);margin:1rem 0"/>
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-shield-check text-success-ats"></i>
+        <small class="text-muted">Payment verified · Secured by Razorpay · PCI-DSS Compliant</small>
+      </div>
+    </div>
+
+    <!-- What's unlocked -->
+    <div class="ats-card mb-4 text-start">
+      <div class="section-label"><i class="bi bi-lightning-fill"></i>Now Unlocked</div>
+      <div class="row g-2">
+        <div class="col-6">
+          <div class="d-flex align-items-center gap-2 p-2" style="background:rgba(6,214,160,0.06);border-radius:8px">
+            <i class="bi bi-infinity text-success-ats"></i>
+            <small class="text-secondary">Unlimited ATS Scans</small>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="d-flex align-items-center gap-2 p-2" style="background:rgba(6,214,160,0.06);border-radius:8px">
+            <i class="bi bi-stars" style="color:#a855f7"></i>
+            <small class="text-secondary">AI Resume Optimizer</small>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="d-flex align-items-center gap-2 p-2" style="background:rgba(6,214,160,0.06);border-radius:8px">
+            <i class="bi bi-file-pdf text-accent"></i>
+            <small class="text-secondary">Watermark-Free PDF</small>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="d-flex align-items-center gap-2 p-2" style="background:rgba(6,214,160,0.06);border-radius:8px">
+            <i class="bi bi-briefcase" style="color:#ffd60a"></i>
+            <small class="text-secondary">JD Matching (Full)</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex gap-3 justify-content-center">
+      <a href="/dashboard" class="btn btn-primary btn-lg">
+        <i class="bi bi-grid me-2"></i>Go to Dashboard
+      </a>
+      <a href="/builder" class="btn btn-outline-light btn-lg">
+        <i class="bi bi-pencil-square me-2"></i>Build Resume
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<style>
+.success-circle {
+  width: 100px; height: 100px;
+  background: rgba(6,214,160,0.1);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.success-svg { width: 80px; height: 80px; }
+.success-ring {
+  fill: none;
+  stroke: #06d6a0;
+  stroke-width: 3;
+  stroke-dasharray: 213;
+  stroke-dashoffset: 213;
+  animation: draw-ring 0.6s 0.2s ease forwards;
+}
+.success-check {
+  fill: none;
+  stroke: #06d6a0;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 50;
+  stroke-dashoffset: 50;
+  animation: draw-check 0.4s 0.8s ease forwards;
+}
+@keyframes draw-ring  { to { stroke-dashoffset: 0; } }
+@keyframes draw-check { to { stroke-dashoffset: 0; } }
+</style>
+
+{% endblock %}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const plan      = params.get('plan')       || 'monthly';
+  const paymentId = params.get('payment_id') || '—';
+  const expires   = params.get('expires')    || '—';
+
+  const planLabels  = { monthly: 'Pro Monthly', yearly: 'Pro Yearly' };
+  const planAmounts = { monthly: '₹499', yearly: '₹3,999' };
+
+  document.getElementById('rcPlan').textContent    = planLabels[plan]  || plan;
+  document.getElementById('rcAmount').textContent  = planAmounts[plan] || '—';
+  document.getElementById('rcExpires').textContent = expires;
+  document.getElementById('rcPayId').textContent   = paymentId;
+
+  document.getElementById('successSubtitle').textContent =
+    `Your ${planLabels[plan] || plan} subscription is active until ${expires}.`;
+
+  // Confetti burst (CSS-only fallback)
+  launchConfetti();
+});
+
+function launchConfetti() {
+  const colors = ['#3a86ff','#06d6a0','#ffd60a','#a855f7','#ef233c'];
+  for (let i = 0; i < 60; i++) {
+    const el = document.createElement('div');
+    el.style.cssText = `
+      position:fixed;
+      top:-10px;
+      left:${Math.random()*100}vw;
+      width:${6+Math.random()*8}px;
+      height:${6+Math.random()*8}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      border-radius:${Math.random()>0.5?'50%':'2px'};
+      opacity:${0.7+Math.random()*0.3};
+      animation: confetti-fall ${1.5+Math.random()*2}s ${Math.random()*0.8}s ease-in forwards;
+      pointer-events:none;
+      z-index:9999;
+    `;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+  }
+}
+</script>
+<style>
+@keyframes confetti-fall {
+  0%   { transform: translateY(0) rotate(0deg);   opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+</style>
+{% endblock %}

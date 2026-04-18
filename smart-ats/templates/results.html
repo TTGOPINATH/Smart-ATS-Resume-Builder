@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+{% block title %}ATS Results — Smart ATS{% endblock %}
+{% block content %}
+
+<div class="container-xl py-4">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div>
+      <h1 class="mb-0" style="font-size:1.75rem">ATS Analysis</h1>
+      <p class="text-secondary small mb-0" id="resumeSubtitle">Loading…</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <button class="btn btn-outline-light" id="editBtn" onclick="editResume()"><i class="bi bi-pencil me-1"></i>Edit</button>
+      <button class="btn btn-outline-light" id="downloadBtn" onclick="downloadPDF()"><i class="bi bi-download me-1"></i>Download PDF</button>
+    </div>
+  </div>
+
+  <!-- JD input panel -->
+  <div class="ats-card mb-4" id="jdPanel">
+    <div class="section-label"><i class="bi bi-briefcase"></i>Job Description Matching</div>
+    <p class="text-secondary small mb-3">Paste a job description to get a tailored ATS score and see exactly which keywords you're missing.</p>
+    <div class="row g-2">
+      <div class="col-lg-10">
+        <textarea class="form-control" id="jdInput" rows="4" placeholder="Paste the full job description here for best results…"></textarea>
+      </div>
+      <div class="col-lg-2 d-flex align-items-end">
+        <button class="btn btn-primary w-100 h-auto py-3" onclick="runATS()">
+          <i class="bi bi-cpu d-block mb-1" style="font-size:1.3rem"></i>
+          <span id="atsRunText">Analyze</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Score section (hidden until analyzed) -->
+  <div id="scoreSection" class="d-none">
+
+    <!-- Main score row -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div class="ats-card text-center h-100">
+          <div class="section-label justify-content-center">Overall ATS Score</div>
+          <div class="score-ring-wrapper mb-2">
+            <svg class="score-ring" width="150" height="150" viewBox="0 0 150 150">
+              <circle class="score-ring-bg" cx="75" cy="75" r="62"/>
+              <circle class="score-ring-fill" cx="75" cy="75" r="62" id="mainRingFill"
+                style="stroke-dasharray:390;stroke-dashoffset:390"/>
+            </svg>
+            <div class="score-ring-text">
+              <div class="score-ring-number" id="mainScoreNum" style="font-size:2.8rem">—</div>
+              <div class="score-ring-label">/ 100</div>
+            </div>
+          </div>
+          <div id="gradeDisplay"></div>
+          <p class="text-muted small mt-2" id="scoreMessage"></p>
+        </div>
+      </div>
+      <div class="col-md-8">
+        <div class="ats-card h-100">
+          <div class="section-label">Score Breakdown</div>
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="text-secondary small">Keyword Match <span class="text-muted">(40%)</span></span>
+              <span class="fw-bold small" id="kwScore">—</span>
+            </div>
+            <div class="ats-progress"><div class="ats-progress-fill" id="kwBar" data-progress="0" style="width:0%"></div></div>
+          </div>
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="text-secondary small">Section Completeness <span class="text-muted">(20%)</span></span>
+              <span class="fw-bold small" id="compScore">—</span>
+            </div>
+            <div class="ats-progress"><div class="ats-progress-fill" id="compBar" data-progress="0" style="width:0%"></div></div>
+          </div>
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="text-secondary small">Formatting & Readability <span class="text-muted">(20%)</span></span>
+              <span class="fw-bold small" id="fmtScore">—</span>
+            </div>
+            <div class="ats-progress"><div class="ats-progress-fill" id="fmtBar" data-progress="0" style="width:0%"></div></div>
+          </div>
+          <div>
+            <div class="d-flex justify-content-between mb-1">
+              <span class="text-secondary small">JD Match <span class="text-muted">(20%)</span></span>
+              <span class="fw-bold small" id="jdScore">—</span>
+            </div>
+            <div class="ats-progress"><div class="ats-progress-fill" id="jdBar" data-progress="0" style="width:0%"></div></div>
+          </div>
+          <div class="mt-3 p-2" style="background:var(--bg-secondary);border-radius:var(--radius-sm)">
+            <small class="text-muted"><span id="scansInfo"></span></small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Keywords -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">
+        <div class="ats-card h-100">
+          <div class="section-label"><i class="bi bi-check-circle"></i>Present Keywords</div>
+          <div id="presentKeywords" class="d-flex flex-wrap gap-1"></div>
+          <div id="noPresentKw" class="text-muted small d-none">No matching keywords found.</div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="ats-card h-100">
+          <div class="section-label"><i class="bi bi-exclamation-triangle"></i>Missing Keywords</div>
+          <div id="missingKeywords" class="d-flex flex-wrap gap-1"></div>
+          <div id="noMissingKw" class="text-muted small d-none">Great! No critical keywords missing.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Suggestions -->
+    <div class="ats-card mb-4" id="suggestionsCard">
+      <div class="section-label"><i class="bi bi-lightbulb"></i>Improvement Suggestions</div>
+      <div id="suggestionsList"></div>
+    </div>
+
+    <!-- AI Optimizer -->
+    <div class="ats-card mb-4" id="aiOptimizerCard">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="section-label mb-0"><i class="bi bi-stars"></i>AI Resume Optimizer</div>
+        <span class="badge-pro">PRO</span>
+      </div>
+      <p class="text-secondary small mb-3">Get AI-generated rewrites for your bullet points, summary improvements, and keyword suggestions.</p>
+      <div id="aiLockedMsg">
+        <div class="text-center py-4">
+          <i class="bi bi-lock-fill text-muted mb-3" style="font-size:2rem;display:block"></i>
+          <h6>Unlock AI Optimization</h6>
+          <p class="text-muted small mb-3">Upgrade to Pro to get AI-powered resume rewrites and suggestions.</p>
+          <a href="/pricing" class="btn btn-primary"><i class="bi bi-lightning me-1"></i>Upgrade to Pro</a>
+        </div>
+      </div>
+      <div id="aiResults" class="d-none">
+        <button class="btn btn-primary mb-3" onclick="runAIOptimize()"><i class="bi bi-stars me-2"></i>Generate AI Suggestions</button>
+        <div id="aiOutput"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Not-yet-scored state -->
+  <div id="noScoreState" class="text-center py-5">
+    <i class="bi bi-cpu" style="font-size:3rem;color:var(--accent);display:block;margin-bottom:1rem"></i>
+    <h5>Ready to analyze your resume</h5>
+    <p class="text-secondary mb-0">Click <strong>"Analyze"</strong> above to get your ATS score. Optionally paste a job description for tailored results.</p>
+  </div>
+
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script>
+let resumeId = null;
+let lastResult = null;
+
+async function initPage() {
+  if (!requireAuth()) return;
+  const params = new URLSearchParams(window.location.search);
+  resumeId = parseInt(params.get('id'));
+  if (!resumeId) { window.location.href = '/dashboard'; return; }
+
+  try {
+    const r = await apiCall('GET', `/resume/${resumeId}`);
+    document.getElementById('resumeSubtitle').textContent = r.title || 'Resume Analysis';
+
+    // If already scored, show results
+    if (r.ats_score != null && r.ats_details) {
+      lastResult = r.ats_details;
+      if (r.last_job_description) document.getElementById('jdInput').value = r.last_job_description;
+      renderResults(r.ats_details);
+    }
+
+    // Check premium for AI
+    const user = getUser();
+    if (user?.is_premium) {
+      document.getElementById('aiLockedMsg').classList.add('d-none');
+      document.getElementById('aiResults').classList.remove('d-none');
+    }
+  } catch (err) {
+    showToast('Failed to load resume: ' + err.message, 'error');
+  }
+}
+
+async function runATS() {
+  if (!resumeId) return;
+  const btn = document.querySelector('[onclick="runATS()"]');
+  const btnText = document.getElementById('atsRunText');
+  btn.disabled = true;
+  btnText.textContent = '…';
+
+  try {
+    const result = await apiCall('POST', '/ats/score', {
+      resume_id: resumeId,
+      job_description: document.getElementById('jdInput').value
+    });
+    lastResult = result;
+    renderResults(result);
+  } catch (err) {
+    if (err.message.includes('scan_limit') || err.message.includes('Free plan')) {
+      showToast(err.message, 'warning');
+      document.getElementById('scoreSection').innerHTML = `
+        <div class="ats-card text-center py-5">
+          <i class="bi bi-lightning-fill text-accent mb-3" style="font-size:2.5rem;display:block"></i>
+          <h5>Scan Limit Reached</h5>
+          <p class="text-secondary mb-3">Free plan allows 3 ATS scans. Upgrade to Pro for unlimited scans.</p>
+          <a href="/pricing" class="btn btn-primary btn-lg"><i class="bi bi-rocket me-2"></i>Upgrade to Pro</a>
+        </div>`;
+      document.getElementById('scoreSection').classList.remove('d-none');
+      document.getElementById('noScoreState').classList.add('d-none');
+    } else {
+      showToast(err.message || 'Analysis failed', 'error');
+    }
+  } finally {
+    btn.disabled = false;
+    btnText.textContent = 'Analyze';
+  }
+}
+
+function renderResults(result) {
+  document.getElementById('noScoreState').classList.add('d-none');
+  document.getElementById('scoreSection').classList.remove('d-none');
+
+  const score = result.total_score || 0;
+
+  // Ring
+  const circumf = 2 * Math.PI * 62;
+  const fill = document.getElementById('mainRingFill');
+  fill.style.strokeDasharray = circumf;
+  setTimeout(() => {
+    fill.style.strokeDashoffset = circumf * (1 - score / 100);
+    fill.style.stroke = scoreColor(score);
+  }, 200);
+
+  document.getElementById('mainScoreNum').textContent = Math.round(score);
+  document.getElementById('mainScoreNum').style.color = scoreColor(score);
+
+  // Grade
+  const grade = result.grade || 'F';
+  document.getElementById('gradeDisplay').innerHTML = `<span class="grade-badge grade-${grade}">${grade}</span>`;
+
+  const messages = { A:'Excellent! Your resume is highly ATS-compatible.', B:'Good score. A few tweaks can make it great.', C:'Average. Several improvements needed.', D:'Below average. Significant optimization required.', F:'Poor ATS compatibility. Major rewrite recommended.' };
+  document.getElementById('scoreMessage').textContent = messages[grade] || '';
+
+  // Breakdown bars
+  function setBar(id, barId, val, max) {
+    document.getElementById(id).textContent = `${val}/${max}`;
+    setTimeout(() => {
+      const el = document.getElementById(barId);
+      const pct = (val / max) * 100;
+      el.style.width = pct + '%';
+      el.style.background = scoreColor(pct);
+    }, 400);
+  }
+  setBar('kwScore', 'kwBar', result.keyword_score || 0, 40);
+  setBar('compScore', 'compBar', result.completeness_score || 0, 20);
+  setBar('fmtScore', 'fmtBar', result.formatting_score || 0, 20);
+  setBar('jdScore', 'jdBar', result.jd_match_score || 0, 20);
+
+  // Scans info
+  const si = result.scans_remaining;
+  if (si !== undefined) {
+    document.getElementById('scansInfo').textContent = si === 'unlimited'
+      ? '✨ Pro: Unlimited scans'
+      : `${si} free scan${si !== 1 ? 's' : ''} remaining`;
+  }
+
+  // Keywords
+  const present = result.present_keywords || [];
+  const missing = result.missing_keywords || [];
+  const pkEl = document.getElementById('presentKeywords');
+  const mkEl = document.getElementById('missingKeywords');
+  pkEl.innerHTML = present.map(k => `<span class="skill-tag skill-tag-present">${k}</span>`).join('') || '';
+  mkEl.innerHTML = missing.map(k => `<span class="skill-tag skill-tag-missing">${k}</span>`).join('') || '';
+  document.getElementById('noPresentKw').classList.toggle('d-none', present.length > 0);
+  document.getElementById('noMissingKw').classList.toggle('d-none', missing.length > 0);
+
+  // Suggestions
+  const suggs = result.suggestions || [];
+  document.getElementById('suggestionsList').innerHTML = suggs.map(s =>
+    `<div class="suggestion-item"><i class="bi bi-lightbulb-fill"></i><span class="text-secondary small">${s}</span></div>`
+  ).join('') || '<p class="text-muted small">No specific suggestions — your resume looks good!</p>';
+}
+
+async function runAIOptimize() {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Generating…';
+  try {
+    const result = await apiCall('POST', '/ats/optimize', {
+      resume_id: resumeId,
+      job_description: document.getElementById('jdInput').value
+    });
+    renderAIResults(result);
+  } catch (err) {
+    showToast(err.message || 'AI optimization failed', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-stars me-2"></i>Generate AI Suggestions';
+  }
+}
+
+function renderAIResults(r) {
+  let html = '';
+
+  if (r.summary_rewrite) {
+    html += `<div class="ats-card ats-card-sm mb-3">
+      <div class="section-label" style="font-size:0.7rem"><i class="bi bi-person-lines-fill"></i>Improved Summary</div>
+      <p class="text-secondary small mb-0">${r.summary_rewrite}</p>
+    </div>`;
+  }
+
+  if (r.bullet_improvements?.length) {
+    html += `<div class="ats-card ats-card-sm mb-3">
+      <div class="section-label" style="font-size:0.7rem"><i class="bi bi-arrow-up-circle"></i>Bullet Point Improvements</div>`;
+    r.bullet_improvements.forEach(b => {
+      html += `<div class="mb-3">
+        <div class="text-muted small mb-1"><i class="bi bi-x-circle text-danger me-1"></i>Original:</div>
+        <div class="p-2 mb-2" style="background:rgba(239,35,60,0.06);border-left:2px solid #ef233c;border-radius:4px;font-size:0.85rem;color:var(--text-secondary)">${b.original}</div>
+        <div class="text-muted small mb-1"><i class="bi bi-check-circle text-success-ats me-1"></i>Improved:</div>
+        <div class="p-2" style="background:rgba(6,214,160,0.06);border-left:2px solid #06d6a0;border-radius:4px;font-size:0.85rem;color:var(--text-secondary)">${b.improved}</div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  if (r.keywords_to_add?.length) {
+    html += `<div class="ats-card ats-card-sm mb-3">
+      <div class="section-label" style="font-size:0.7rem"><i class="bi bi-plus-circle"></i>Keywords to Add</div>
+      <div class="d-flex flex-wrap gap-1">${r.keywords_to_add.map(k=>`<span class="skill-tag skill-tag-missing">${k}</span>`).join('')}</div>
+    </div>`;
+  }
+
+  if (r.overall_tips?.length) {
+    html += `<div class="ats-card ats-card-sm">
+      <div class="section-label" style="font-size:0.7rem"><i class="bi bi-lightbulb"></i>Pro Tips</div>
+      ${r.overall_tips.map(t=>`<div class="d-flex gap-2 mb-2"><i class="bi bi-star-fill text-warn" style="font-size:0.7rem;margin-top:3px;flex-shrink:0"></i><small class="text-secondary">${t}</small></div>`).join('')}
+    </div>`;
+  }
+
+  document.getElementById('aiOutput').innerHTML = html || '<p class="text-muted small">No specific suggestions generated.</p>';
+}
+
+function editResume() {
+  if (resumeId) window.location.href = `/builder?id=${resumeId}`;
+}
+
+async function downloadPDF() {
+  if (!resumeId) return;
+  const user = getUser();
+  const isWatermarked = !user?.is_premium;
+  if (isWatermarked) {
+    if (!confirm('Free plan PDFs include a watermark. Upgrade to Pro for clean PDFs.\n\nContinue with watermark?')) return;
+  }
+  showLoading('Generating PDF…');
+  try {
+    const res = await fetch(`/resume/${resumeId}/download-pdf`, {
+      headers: { 'Authorization': `Bearer ${getToken()}` }
+    });
+    if (!res.ok) throw new Error('PDF generation failed');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'resume.pdf'; a.click();
+    URL.revokeObjectURL(url);
+    hideLoading();
+    showToast('PDF downloaded!', 'success');
+  } catch (err) {
+    hideLoading();
+    showToast(err.message || 'Download failed', 'error');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', initPage);
+</script>
+{% endblock %}

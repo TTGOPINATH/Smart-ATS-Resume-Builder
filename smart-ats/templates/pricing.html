@@ -1,0 +1,503 @@
+{% extends "base.html" %}
+{% block title %}Pricing — Smart ATS{% endblock %}
+{% block content %}
+
+<div class="container-xl" style="padding:4rem 0 5rem">
+
+  <!-- Header -->
+  <div class="text-center mb-5 anim-fade-up">
+    <span class="badge badge-free mb-3 px-3 py-2"><i class="bi bi-stars me-1"></i>Transparent Pricing</span>
+    <h1 class="display-headline mb-3" style="font-size:clamp(2rem,4vw,3rem)">
+      Invest in Your <span class="gradient-text">Career</span>
+    </h1>
+    <p class="text-secondary fs-5 mb-4">Start free. Upgrade when you're ready to land the job.</p>
+
+    <!-- Billing toggle -->
+    <div class="d-inline-flex align-items-center gap-3 p-1"
+         style="background:var(--bg-card);border:1px solid var(--border);border-radius:999px">
+      <button id="toggleMonthly" onclick="setBilling('monthly')"
+        class="btn btn-sm px-4 py-2 toggle-active"
+        style="border-radius:999px;font-weight:600;font-size:0.875rem">Monthly</button>
+      <button id="toggleYearly" onclick="setBilling('yearly')"
+        class="btn btn-sm px-4 py-2"
+        style="border-radius:999px;font-weight:600;font-size:0.875rem;background:none;border:none;color:var(--text-secondary)">
+        Yearly <span class="ms-1 badge" style="background:rgba(6,214,160,0.15);color:#06d6a0;font-size:0.65rem;padding:0.2rem 0.5rem;border-radius:999px">Save 33%</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Plans grid -->
+  <div class="row g-4 justify-content-center mb-5 anim-fade-up-1">
+
+    <!-- Free -->
+    <div class="col-md-4">
+      <div class="pricing-card h-100">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <div class="feature-icon" style="width:36px;height:36px;font-size:1rem;background:var(--bg-secondary)"><i class="bi bi-person" style="color:var(--text-muted)"></i></div>
+          <h5 class="mb-0">Free</h5>
+        </div>
+        <p class="text-muted small mb-4">Perfect for getting started</p>
+
+        <div class="mb-4">
+          <div class="d-flex align-items-end gap-1">
+            <span class="price-amount">₹0</span>
+          </div>
+          <span class="price-period">forever free</span>
+        </div>
+
+        <div class="mb-4">
+          <div class="pricing-feature"><i class="bi bi-check-lg"></i><span>Unlimited resume building</span></div>
+          <div class="pricing-feature"><i class="bi bi-check-lg"></i><span>3 ATS scans total</span></div>
+          <div class="pricing-feature"><i class="bi bi-check-lg"></i><span>PDF download <span class="text-muted">(watermarked)</span></span></div>
+          <div class="pricing-feature"><i class="bi bi-check-lg"></i><span>Resume upload & parsing</span></div>
+          <div class="pricing-feature" style="opacity:0.35"><i class="bi bi-x-lg" style="color:var(--text-muted)"></i><span>AI Resume Optimizer</span></div>
+          <div class="pricing-feature" style="opacity:0.35"><i class="bi bi-x-lg" style="color:var(--text-muted)"></i><span>Unlimited ATS scans</span></div>
+          <div class="pricing-feature" style="opacity:0.35"><i class="bi bi-x-lg" style="color:var(--text-muted)"></i><span>Watermark-free PDFs</span></div>
+        </div>
+
+        <div id="freeBtn">
+          <a href="/register" class="btn btn-outline-light w-100">Get Started Free</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pro Monthly -->
+    <div class="col-md-4" id="monthlyCol">
+      <div class="pricing-card featured h-100" style="transform:scale(1.02)">
+        <span class="pricing-popular">Most Popular</span>
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <div class="feature-icon" style="width:36px;height:36px;font-size:1rem;background:var(--accent-dim)"><i class="bi bi-lightning-fill text-accent"></i></div>
+          <h5 class="mb-0">Pro Monthly</h5>
+        </div>
+        <p class="text-muted small mb-4">For active job seekers</p>
+
+        <div class="mb-4">
+          <div class="d-flex align-items-end gap-1">
+            <span class="price-amount">₹499</span>
+          </div>
+          <span class="price-period">per month · billed monthly</span>
+        </div>
+
+        <div class="mb-4">
+          <div class="pricing-feature"><i class="bi bi-check-lg"></i><span>Everything in Free</span></div>
+          <div class="pricing-feature"><i class="bi bi-check-lg"></i><span>Unlimited ATS scans</span></div>
+          <div class="pricing-feature"><i class="bi bi-check-lg"></i><span>AI Resume Optimizer</span></div>
+          <div class="pricing-feature"><i class="bi bi-check-lg"></i><span>Watermark-free PDFs</span></div>
+          <div class="pricing-feature"><i class="bi bi-check-lg"></i><span>Job description matching</span></div>
+          <div class="pricing-feature"><i class="bi bi-check-lg"></i><span>Full resume history</span></div>
+          <div class="pricing-feature"><i class="bi bi-check-lg"></i><span>Priority support</span></div>
+        </div>
+
+        <button class="btn btn-primary w-100 btn-lg pay-btn" id="monthlyPayBtn"
+          onclick="initPayment('monthly')" style="position:relative;overflow:hidden">
+          <i class="bi bi-lightning-fill me-2"></i>Upgrade — ₹499/mo
+          <span class="btn-shimmer"></span>
+        </button>
+        <p class="text-muted text-center mt-2" style="font-size:0.75rem">
+          <i class="bi bi-shield-check me-1"></i>Secure checkout via Razorpay
+        </p>
+      </div>
+    </div>
+
+    <!-- Pro Yearly -->
+    <div class="col-md-4" id="yearlyCol" style="display:none">
+      <div class="pricing-card featured h-100" style="transform:scale(1.02)">
+        <span class="pricing-popular" style="background:linear-gradient(135deg,#06d6a0,#3a86ff)">Best Value</span>
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <div class="feature-icon" style="width:36px;height:36px;font-size:1rem;background:rgba(6,214,160,0.12)"><i class="bi bi-star-fill" style="color:#06d6a0"></i></div>
+          <h5 class="mb-0">Pro Yearly</h5>
+        </div>
+        <p class="text-muted small mb-4">Best value — 2 months free</p>
+
+        <div class="mb-4">
+          <div class="d-flex align-items-end gap-2">
+            <span class="price-amount">₹3,999</span>
+            <span class="text-muted" style="text-decoration:line-through;font-size:1.1rem;margin-bottom:0.4rem">₹5,988</span>
+          </div>
+          <span class="price-period">per year · save <span style="color:#06d6a0;font-weight:700">₹1,989</span></span>
+        </div>
+
+        <div class="mb-4">
+          <div class="pricing-feature"><i class="bi bi-check-lg"></i><span>Everything in Monthly</span></div>
+          <div class="pricing-feature"><i class="bi bi-check-lg"></i><span>2 months absolutely free</span></div>
+          <div class="pricing-feature"><i class="bi bi-check-lg"></i><span>Download tracking & analytics</span></div>
+          <div class="pricing-feature"><i class="bi bi-check-lg"></i><span>Early access to new features</span></div>
+          <div class="pricing-feature"><i class="bi bi-check-lg"></i><span>Dedicated support channel</span></div>
+          <div class="pricing-feature"><i class="bi bi-check-lg"></i><span>Yearly receipt for taxes</span></div>
+          <div class="pricing-feature"><i class="bi bi-check-lg"></i><span>Priority feature requests</span></div>
+        </div>
+
+        <button class="btn btn-success w-100 btn-lg pay-btn" id="yearlyPayBtn"
+          onclick="initPayment('yearly')" style="position:relative;overflow:hidden">
+          <i class="bi bi-star-fill me-2"></i>Upgrade — ₹3,999/yr
+          <span class="btn-shimmer"></span>
+        </button>
+        <p class="text-muted text-center mt-2" style="font-size:0.75rem">
+          <i class="bi bi-shield-check me-1"></i>Secure checkout via Razorpay
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Payment methods bar -->
+  <div class="text-center mb-5 anim-fade-up-2">
+    <p class="text-muted small mb-3">Accepted payment methods</p>
+    <div class="d-flex flex-wrap justify-content-center align-items-center gap-3">
+      <span class="pay-method-badge"><i class="bi bi-credit-card me-1"></i>Visa / Mastercard</span>
+      <span class="pay-method-badge"><i class="bi bi-phone me-1"></i>UPI</span>
+      <span class="pay-method-badge"><i class="bi bi-bank me-1"></i>Net Banking</span>
+      <span class="pay-method-badge"><i class="bi bi-wallet2 me-1"></i>Paytm / PhonePe</span>
+      <span class="pay-method-badge"><i class="bi bi-cash-coin me-1"></i>EMI</span>
+    </div>
+  </div>
+
+  <!-- Comparison table -->
+  <div class="ats-card mb-5 anim-fade-up-2" style="overflow-x:auto">
+    <h5 class="mb-4 text-center" style="font-family:var(--font-display)">Full Feature Comparison</h5>
+    <table class="w-100" style="border-collapse:collapse;min-width:500px">
+      <thead>
+        <tr style="border-bottom:1px solid var(--border)">
+          <th style="padding:0.75rem 1rem;text-align:left;color:var(--text-muted);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Feature</th>
+          <th style="padding:0.75rem 1rem;text-align:center;color:var(--text-muted);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Free</th>
+          <th style="padding:0.75rem 1rem;text-align:center;color:var(--accent);font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em">Pro</th>
+        </tr>
+      </thead>
+      <tbody id="compTable">
+        <tr class="comp-row"><td>Resume Builder</td><td class="comp-yes">✓ Unlimited</td><td class="comp-yes">✓ Unlimited</td></tr>
+        <tr class="comp-row"><td>ATS Score</td><td class="comp-partial">3 scans</td><td class="comp-yes">✓ Unlimited</td></tr>
+        <tr class="comp-row"><td>PDF Download</td><td class="comp-partial">Watermarked</td><td class="comp-yes">✓ Clean PDF</td></tr>
+        <tr class="comp-row"><td>Resume Upload & Parse</td><td class="comp-yes">✓</td><td class="comp-yes">✓</td></tr>
+        <tr class="comp-row"><td>Job Description Matching</td><td class="comp-yes">✓</td><td class="comp-yes">✓</td></tr>
+        <tr class="comp-row"><td>AI Resume Optimizer</td><td class="comp-no">✗</td><td class="comp-yes">✓</td></tr>
+        <tr class="comp-row"><td>Missing Keyword Suggestions</td><td class="comp-partial">Basic</td><td class="comp-yes">✓ Full</td></tr>
+        <tr class="comp-row"><td>Download Tracking</td><td class="comp-no">✗</td><td class="comp-yes">✓</td></tr>
+        <tr class="comp-row"><td>Priority Support</td><td class="comp-no">✗</td><td class="comp-yes">✓</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Testimonials -->
+  <div class="row g-4 mb-5 anim-fade-up-3">
+    <div class="col-12 text-center mb-2"><h5 style="font-family:var(--font-display)">Trusted by Job Seekers</h5></div>
+    <div class="col-md-4">
+      <div class="ats-card h-100">
+        <div class="d-flex gap-1 mb-3" style="color:#ffd60a">★★★★★</div>
+        <p class="text-secondary small mb-3">"Went from 0 callbacks to 3 interviews in a week after optimizing my resume with Smart ATS. The keyword suggestions are spot-on."</p>
+        <div class="d-flex align-items-center gap-2">
+          <div class="stat-icon" style="background:var(--accent-dim);width:36px;height:36px;font-size:0.9rem;flex-shrink:0"><i class="bi bi-person-fill text-accent"></i></div>
+          <div><div class="fw-semibold small">Priya S.</div><div class="text-muted" style="font-size:0.75rem">Software Engineer, Bengaluru</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="ats-card h-100">
+        <div class="d-flex gap-1 mb-3" style="color:#ffd60a">★★★★★</div>
+        <p class="text-secondary small mb-3">"The AI optimizer rewrote my bullet points to actually quantify my achievements. My ATS score jumped from 42 to 87 in one session."</p>
+        <div class="d-flex align-items-center gap-2">
+          <div class="stat-icon" style="background:rgba(6,214,160,0.1);width:36px;height:36px;font-size:0.9rem;flex-shrink:0"><i class="bi bi-person-fill" style="color:#06d6a0"></i></div>
+          <div><div class="fw-semibold small">Arjun M.</div><div class="text-muted" style="font-size:0.75rem">Data Analyst, Mumbai</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="ats-card h-100">
+        <div class="d-flex gap-1 mb-3" style="color:#ffd60a">★★★★★</div>
+        <p class="text-secondary small mb-3">"Worth every rupee. Being able to paste the job description and instantly see what's missing saves hours of guesswork."</p>
+        <div class="d-flex align-items-center gap-2">
+          <div class="stat-icon" style="background:rgba(255,214,10,0.1);width:36px;height:36px;font-size:0.9rem;flex-shrink:0"><i class="bi bi-person-fill" style="color:#ffd60a"></i></div>
+          <div><div class="fw-semibold small">Kavitha R.</div><div class="text-muted" style="font-size:0.75rem">Product Manager, Chennai</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="row justify-content-center anim-fade-up-3">
+    <div class="col-lg-7">
+      <h4 class="text-center mb-4" style="font-family:var(--font-display)">Frequently Asked Questions</h4>
+      <div class="accordion" id="faqAccordion"
+        style="--bs-accordion-bg:var(--bg-card);--bs-accordion-border-color:var(--border);
+               --bs-accordion-color:var(--text-primary);--bs-accordion-btn-color:var(--text-primary);
+               --bs-accordion-active-color:var(--accent);--bs-accordion-btn-focus-box-shadow:none;
+               --bs-accordion-active-bg:var(--bg-card)">
+        <div class="accordion-item mb-2" style="border-radius:var(--radius-md)!important;overflow:hidden">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#faq1">
+              What payment methods are accepted?
+            </button>
+          </h2>
+          <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+            <div class="accordion-body text-secondary small">
+              We accept all major Credit/Debit cards (Visa, Mastercard, RuPay), UPI (GPay, PhonePe, Paytm), Net Banking (all major banks), and EMI options — all securely via Razorpay, India's most trusted payment gateway.
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item mb-2" style="border-radius:var(--radius-md)!important;overflow:hidden">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#faq2">
+              Can I cancel anytime?
+            </button>
+          </h2>
+          <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+            <div class="accordion-body text-secondary small">
+              Yes. There are no contracts or lock-ins. Your Pro access remains active until the end of your billing period. Monthly subscribers can simply not renew next month.
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item mb-2" style="border-radius:var(--radius-md)!important;overflow:hidden">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#faq3">
+              Is there a refund policy?
+            </button>
+          </h2>
+          <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+            <div class="accordion-body text-secondary small">
+              We offer a 7-day money-back guarantee. If you're not satisfied, email us within 7 days of purchase for a full refund — no questions asked.
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item mb-2" style="border-radius:var(--radius-md)!important;overflow:hidden">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#faq4">
+              When does my Pro plan activate?
+            </button>
+          </h2>
+          <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+            <div class="accordion-body text-secondary small">
+              Instantly. The moment your payment is verified by Razorpay, your account is upgraded to Pro. No waiting, no manual steps.
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item" style="border-radius:var(--radius-md)!important;overflow:hidden">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#faq5">
+              Is my payment information secure?
+            </button>
+          </h2>
+          <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+            <div class="accordion-body text-secondary small">
+              Absolutely. We never store card details on our servers. All payment processing is handled by Razorpay, which is PCI-DSS Level 1 certified — the highest standard in payment security.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Payment Processing Modal ─────────────────────────────────────────── -->
+<div class="modal fade" id="processingModal" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg)">
+      <div class="modal-body text-center p-5">
+        <div class="spinner-border mb-3" style="color:var(--accent);width:3rem;height:3rem"></div>
+        <h6 id="processingMsg">Creating your order…</h6>
+        <p class="text-muted small mb-0">Please do not close this window.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.toggle-active { background:var(--accent)!important; color:#fff!important; border:none!important; }
+.pay-method-badge {
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  color:var(--text-secondary);
+  padding:0.4rem 1rem;
+  border-radius:999px;
+  font-size:0.8rem;
+}
+.comp-row td {
+  padding:0.75rem 1rem;
+  border-bottom:1px solid var(--border);
+  font-size:0.9rem;
+  color:var(--text-secondary);
+}
+.comp-row td:first-child { font-weight:500; color:var(--text-primary); }
+.comp-yes  { text-align:center; color:#06d6a0; font-weight:600; }
+.comp-no   { text-align:center; color:var(--text-muted); }
+.comp-partial { text-align:center; color:#ffd60a; font-weight:500; }
+.btn-shimmer {
+  position:absolute; top:0; left:-100%;
+  width:60%; height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);
+  animation:shimmer 2.5s infinite;
+}
+@keyframes shimmer { 0%{left:-100%} 100%{left:200%} }
+</style>
+
+{% endblock %}
+{% block extra_js %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+// ── Billing toggle ────────────────────────────────────────────────────────
+function setBilling(mode) {
+  const isYearly = mode === 'yearly';
+  document.getElementById('monthlyCol').style.display = isYearly ? 'none' : '';
+  document.getElementById('yearlyCol').style.display  = isYearly ? '' : 'none';
+
+  const tgM = document.getElementById('toggleMonthly');
+  const tgY = document.getElementById('toggleYearly');
+  if (isYearly) {
+    tgY.classList.add('toggle-active');
+    tgY.style.cssText = '';
+    tgM.classList.remove('toggle-active');
+    tgM.style.background = 'none'; tgM.style.border = 'none'; tgM.style.color = 'var(--text-secondary)';
+  } else {
+    tgM.classList.add('toggle-active');
+    tgM.style.cssText = '';
+    tgY.classList.remove('toggle-active');
+    tgY.style.background = 'none'; tgY.style.border = 'none'; tgY.style.color = 'var(--text-secondary)';
+  }
+}
+
+// ── Auth guard check ──────────────────────────────────────────────────────
+function checkPremiumStatus() {
+  const user = getUser();
+  if (!user) return;
+  if (user.is_premium) {
+    // Disable pay buttons, show already-pro state
+    document.querySelectorAll('.pay-btn').forEach(btn => {
+      btn.disabled = true;
+      btn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>You\'re already Pro!';
+      btn.classList.remove('btn-primary','btn-success');
+      btn.classList.add('btn-outline-light');
+    });
+    document.getElementById('freeBtn').innerHTML =
+      '<div class="text-center text-muted small p-2"><i class="bi bi-check-circle-fill text-success-ats me-1"></i>Your current plan</div>';
+  }
+}
+
+// ── Main payment flow ─────────────────────────────────────────────────────
+let processingModal = null;
+
+async function initPayment(plan) {
+  // 1. Auth check
+  if (!getToken()) {
+    showToast('Please sign in to continue', 'info');
+    setTimeout(() => window.location.href = '/login?next=/pricing', 700);
+    return;
+  }
+
+  const user = getUser();
+  if (user?.is_premium) {
+    showToast('You already have a Pro subscription! 🎉', 'info');
+    return;
+  }
+
+  // 2. Show processing modal
+  processingModal = new bootstrap.Modal(document.getElementById('processingModal'));
+  document.getElementById('processingMsg').textContent = 'Creating your order…';
+  processingModal.show();
+
+  try {
+    // 3. Create order on backend
+    const order = await apiCall('POST', '/payment/create-order', { plan });
+
+    // 4. Hide processing modal, open Razorpay
+    processingModal.hide();
+
+    const options = {
+      key:         order.key_id,
+      amount:      order.amount,          // in paise
+      currency:    order.currency,
+      name:        'Smart ATS',
+      description: order.description,
+      image:       '/static/img/logo.png', // optional logo
+      order_id:    order.order_id,
+      prefill: {
+        name:  order.user_name,
+        email: order.user_email,
+        contact: '',
+      },
+      notes: { plan },
+      theme: { color: '#3a86ff' },
+
+      // ── Success handler ───────────────────────────────────────────────
+      handler: async function(response) {
+        document.getElementById('processingMsg').textContent = 'Verifying payment…';
+        processingModal.show();
+
+        try {
+          const result = await apiCall('POST', '/payment/verify', {
+            razorpay_order_id:   response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature:  response.razorpay_signature,
+            plan,
+          });
+
+          processingModal.hide();
+
+          // Update cached user
+          const u = getUser();
+          if (u) {
+            u.is_premium = true;
+            u.plan       = plan;
+            localStorage.setItem('ats_user', JSON.stringify(u));
+          }
+
+          // Redirect to success page
+          const params = new URLSearchParams({
+            plan,
+            payment_id: response.razorpay_payment_id,
+            expires:    result.expires_at || '',
+          });
+          window.location.href = '/payment/success?' + params.toString();
+
+        } catch (verifyErr) {
+          processingModal.hide();
+          showToast(
+            '⚠️ Payment was captured but verification failed. Contact support with Payment ID: ' + response.razorpay_payment_id,
+            'error',
+            10000
+          );
+        }
+      },
+
+      // ── Modal dismissed ───────────────────────────────────────────────
+      modal: {
+        ondismiss: function() {
+          showToast('Payment cancelled. Your money was not charged.', 'info');
+        },
+      },
+    };
+
+    const rzp = new Razorpay(options);
+
+    // Handle payment failure inside Razorpay modal
+    rzp.on('payment.failed', function(resp) {
+      showToast(
+        'Payment failed: ' + (resp.error.description || 'Unknown error') + '. No charges made.',
+        'error',
+        8000
+      );
+    });
+
+    rzp.open();
+
+  } catch (err) {
+    processingModal.hide();
+
+    // User-friendly error messages
+    if (err.message && err.message.includes('not configured')) {
+      showToast('Payment gateway not set up yet. Please contact support.', 'warning', 7000);
+    } else if (err.message && err.message.includes('already on')) {
+      showToast(err.message, 'info', 6000);
+    } else {
+      showToast('Could not start payment: ' + (err.message || 'Unknown error'), 'error');
+    }
+  }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  checkPremiumStatus();
+  // Pre-select billing mode from URL param
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('plan') === 'yearly') setBilling('yearly');
+});
+</script>
+{% endblock %}

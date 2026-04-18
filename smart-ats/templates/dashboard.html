@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Smart ATS{% endblock %}
+{% block content %}
+
+<div class="container-xl py-4">
+
+  <!-- Header -->
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div>
+      <h1 class="mb-1" style="font-size:1.75rem">Dashboard</h1>
+      <p class="text-secondary small mb-0">Manage your resumes and track your progress</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="/upload" class="btn btn-outline-light"><i class="bi bi-cloud-upload me-2"></i>Upload Resume</a>
+      <a href="/builder" class="btn btn-primary"><i class="bi bi-plus-lg me-2"></i>New Resume</a>
+    </div>
+  </div>
+
+  <!-- Stats row -->
+  <div class="row g-3 mb-4" id="statsRow">
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="stat-value" id="statResumes">0</div>
+            <div class="stat-label">Total Resumes</div>
+          </div>
+          <div class="stat-icon" style="background:var(--accent-dim)"><i class="bi bi-file-text text-accent"></i></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="stat-value" id="statBestScore">—</div>
+            <div class="stat-label">Best ATS Score</div>
+          </div>
+          <div class="stat-icon" style="background:rgba(6,214,160,0.1)"><i class="bi bi-graph-up" style="color:#06d6a0"></i></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="stat-value" id="statScansLeft">—</div>
+            <div class="stat-label">Scans Remaining</div>
+          </div>
+          <div class="stat-icon" style="background:rgba(255,214,10,0.1)"><i class="bi bi-lightning" style="color:#ffd60a"></i></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="stat-value" id="statDownloads">0</div>
+            <div class="stat-label">PDF Downloads</div>
+          </div>
+          <div class="stat-icon" style="background:rgba(168,85,247,0.1)"><i class="bi bi-download" style="color:#a855f7"></i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upgrade banner (free users) -->
+  <div id="upgradeBanner" class="d-none mb-4">
+    <div class="ats-card" style="background:linear-gradient(135deg,rgba(58,134,255,0.12),rgba(6,214,160,0.08));border-color:var(--border-glow)">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div class="d-flex align-items-center gap-3">
+          <div class="feature-icon" style="background:var(--accent-dim);width:48px;height:48px"><i class="bi bi-lightning-fill text-accent"></i></div>
+          <div>
+            <h6 class="mb-0">Upgrade to Pro</h6>
+            <p class="small text-secondary mb-0">Get unlimited ATS scans, AI optimization, and watermark-free PDFs.</p>
+          </div>
+        </div>
+        <a href="/pricing" class="btn btn-primary">View Plans <i class="bi bi-arrow-right ms-1"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resumes grid -->
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h5 class="mb-0">My Resumes</h5>
+    <span class="text-muted small" id="resumeCount">Loading…</span>
+  </div>
+
+  <div id="resumesGrid" class="row g-3">
+    <!-- Skeleton cards -->
+    <div class="col-md-6 col-lg-4" id="skeletonCard">
+      <div class="resume-card" style="cursor:default;opacity:0.4">
+        <div class="mb-2" style="height:14px;background:var(--border);border-radius:4px;width:60%"></div>
+        <div style="height:11px;background:var(--border);border-radius:4px;width:40%"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="emptyState" class="d-none empty-state">
+    <i class="bi bi-file-earmark-plus"></i>
+    <h5>No resumes yet</h5>
+    <p class="mb-3">Create your first resume or upload an existing one to get started.</p>
+    <div class="d-flex gap-2 justify-content-center">
+      <a href="/builder" class="btn btn-primary"><i class="bi bi-plus me-1"></i>Build Resume</a>
+      <a href="/upload" class="btn btn-outline-light"><i class="bi bi-upload me-1"></i>Upload</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- Delete confirm modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content" style="background:var(--bg-card);border:1px solid var(--border)">
+      <div class="modal-body text-center p-4">
+        <i class="bi bi-trash3 text-danger mb-3" style="font-size:2rem;display:block"></i>
+        <h6>Delete this resume?</h6>
+        <p class="text-secondary small mb-4">This action cannot be undone.</p>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-light flex-fill" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-danger flex-fill" id="confirmDeleteBtn">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script>
+let allResumes = [];
+let deleteResumeId = null;
+
+async function loadDashboard() {
+  if (!requireAuth()) return;
+  const user = getUser();
+
+  // Stats from user object
+  if (user) {
+    const scansLeft = user.is_premium ? '∞' : Math.max(0, user.ats_scans_limit - user.ats_scans_used);
+    document.getElementById('statScansLeft').textContent = scansLeft;
+    if (!user.is_premium) document.getElementById('upgradeBanner').classList.remove('d-none');
+  }
+
+  try {
+    allResumes = await apiCall('GET', '/resume/');
+    renderResumes(allResumes);
+
+    // Calc stats
+    const total = allResumes.length;
+    const downloads = allResumes.reduce((s, r) => s + (r.download_count || 0), 0);
+    const scores = allResumes.filter(r => r.ats_score != null).map(r => r.ats_score);
+    const best = scores.length ? Math.max(...scores).toFixed(0) : '—';
+
+    document.getElementById('statResumes').textContent = total;
+    document.getElementById('statDownloads').textContent = downloads;
+    document.getElementById('statBestScore').textContent = best === '—' ? '—' : best;
+    document.getElementById('resumeCount').textContent = `${total} resume${total !== 1 ? 's' : ''}`;
+  } catch (err) {
+    showToast('Failed to load resumes: ' + err.message, 'error');
+  }
+}
+
+function scoreClass(score) {
+  if (!score) return 'style="background:var(--border);color:var(--text-muted)"';
+  if (score >= 80) return 'style="background:rgba(6,214,160,0.15);color:#06d6a0"';
+  if (score >= 60) return 'style="background:rgba(58,134,255,0.15);color:#3a86ff"';
+  if (score >= 40) return 'style="background:rgba(255,214,10,0.15);color:#ffd60a"';
+  return 'style="background:rgba(239,35,60,0.15);color:#ef233c"';
+}
+
+function renderResumes(list) {
+  const grid = document.getElementById('resumesGrid');
+  grid.innerHTML = '';
+  if (!list.length) {
+    document.getElementById('emptyState').classList.remove('d-none');
+    return;
+  }
+  document.getElementById('emptyState').classList.add('d-none');
+
+  list.forEach((r, i) => {
+    const scoreHtml = r.ats_score != null
+      ? `<span class="resume-score-pill" ${scoreClass(r.ats_score)}><i class="bi bi-graph-up"></i> ${r.ats_score.toFixed(0)}</span>`
+      : `<span class="resume-score-pill" style="background:var(--border);color:var(--text-muted)"><i class="bi bi-dash"></i> Not scored</span>`;
+
+    const typeIcon = r.is_uploaded ? 'bi-upload text-warning' : 'bi-pencil-square text-accent';
+    const date = new Date(r.updated_at).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'});
+
+    const col = document.createElement('div');
+    col.className = `col-md-6 col-lg-4 anim-fade-up-${(i % 3) + 1}`;
+    col.innerHTML = `
+      <div class="resume-card" onclick="window.location.href='/results?id=${r.id}'">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div class="d-flex align-items-center gap-2 flex-1 min-w-0">
+            <i class="bi ${typeIcon}" style="flex-shrink:0"></i>
+            <h6 class="mb-0 text-truncate" title="${r.title}">${r.title}</h6>
+          </div>
+          <div class="d-flex gap-1 ms-2" onclick="event.stopPropagation()">
+            <a href="/builder?id=${r.id}" class="btn btn-sm btn-outline-light p-1" title="Edit" style="width:28px;height:28px;display:flex;align-items:center;justify-content:center">
+              <i class="bi bi-pencil" style="font-size:0.75rem"></i>
+            </a>
+            <button class="btn btn-sm p-1" title="Delete" onclick="openDeleteModal(${r.id})"
+              style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:rgba(239,35,60,0.1);border:1px solid rgba(239,35,60,0.25);color:#ef233c;border-radius:6px">
+              <i class="bi bi-trash" style="font-size:0.75rem"></i>
+            </button>
+          </div>
+        </div>
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+          ${scoreHtml}
+          <span class="text-muted" style="font-size:0.75rem"><i class="bi bi-clock me-1"></i>${date}</span>
+        </div>
+        <div class="mt-2 d-flex gap-1 flex-wrap">
+          ${(r.skills || []).slice(0,3).map(s=>`<span class="skill-tag" style="font-size:0.72rem;padding:0.15rem 0.5rem">${s}</span>`).join('')}
+          ${(r.skills||[]).length > 3 ? `<span class="text-muted" style="font-size:0.75rem;align-self:center">+${r.skills.length-3}</span>` : ''}
+        </div>
+      </div>`;
+    grid.appendChild(col);
+  });
+}
+
+function openDeleteModal(id) {
+  deleteResumeId = id;
+  new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+  if (!deleteResumeId) return;
+  try {
+    await apiCall('DELETE', `/resume/${deleteResumeId}`);
+    bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+    showToast('Resume deleted', 'success');
+    loadDashboard();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+});
+
+loadDashboard();
+</script>
+{% endblock %}

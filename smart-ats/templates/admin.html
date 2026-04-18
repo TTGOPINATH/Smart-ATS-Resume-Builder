@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard — Smart ATS{% endblock %}
+{% block content %}
+
+<div class="container-xl py-4">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h1 class="mb-0" style="font-size:1.75rem">Admin Dashboard</h1>
+      <p class="text-secondary small mb-0">Platform overview and user management</p>
+    </div>
+    <span class="badge" style="background:rgba(239,35,60,0.15);color:#ef233c;border:1px solid rgba(239,35,60,0.3);padding:0.4rem 0.85rem">
+      <i class="bi bi-shield-fill me-1"></i>Admin Mode
+    </span>
+  </div>
+
+  <!-- Stats -->
+  <div class="row g-3 mb-4" id="adminStats">
+    <div class="col-6 col-md-2">
+      <div class="stat-card text-center"><div class="stat-value" id="aStat1">—</div><div class="stat-label">Total Users</div></div>
+    </div>
+    <div class="col-6 col-md-2">
+      <div class="stat-card text-center"><div class="stat-value text-warn" id="aStat2">—</div><div class="stat-label">Pro Users</div></div>
+    </div>
+    <div class="col-6 col-md-2">
+      <div class="stat-card text-center"><div class="stat-value text-accent" id="aStat3">—</div><div class="stat-label">Resumes</div></div>
+    </div>
+    <div class="col-6 col-md-2">
+      <div class="stat-card text-center"><div class="stat-value text-success-ats" id="aStat4">—</div><div class="stat-label">Payments</div></div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="stat-card"><div class="stat-value text-success-ats" id="aStat5">₹—</div><div class="stat-label">Total Revenue</div></div>
+    </div>
+  </div>
+
+  <!-- Users table -->
+  <div class="ats-card mb-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <div class="section-label mb-0"><i class="bi bi-people"></i>Users</div>
+      <button class="btn btn-sm btn-outline-light" onclick="loadUsers()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
+    </div>
+    <div class="table-responsive">
+      <table class="table" style="--bs-table-bg:transparent;--bs-table-color:var(--text-secondary);--bs-table-border-color:var(--border)">
+        <thead>
+          <tr style="color:var(--text-muted);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em">
+            <th>ID</th><th>Email</th><th>Username</th><th>Plan</th><th>Scans</th><th>Joined</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="usersTableBody">
+          <tr><td colspan="7" class="text-center text-muted py-4"><span class="spinner-border spinner-border-sm me-2"></span>Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Payments table -->
+  <div class="ats-card">
+    <div class="section-label mb-3"><i class="bi bi-credit-card"></i>Recent Payments</div>
+    <div class="table-responsive">
+      <table class="table" style="--bs-table-bg:transparent;--bs-table-color:var(--text-secondary);--bs-table-border-color:var(--border)">
+        <thead>
+          <tr style="color:var(--text-muted);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em">
+            <th>ID</th><th>User</th><th>Plan</th><th>Amount</th><th>Status</th><th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="paymentsTableBody">
+          <tr><td colspan="6" class="text-center text-muted py-4"><span class="spinner-border spinner-border-sm me-2"></span>Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script>
+async function loadAdminData() {
+  if (!requireAuth()) return;
+  const user = getUser();
+  if (!user?.is_admin) { showToast('Admin access required', 'error'); window.location.href='/dashboard'; return; }
+
+  try {
+    const stats = await apiCall('GET', '/admin/stats');
+    document.getElementById('aStat1').textContent = stats.total_users;
+    document.getElementById('aStat2').textContent = stats.premium_users;
+    document.getElementById('aStat3').textContent = stats.total_resumes;
+    document.getElementById('aStat4').textContent = stats.successful_payments;
+    document.getElementById('aStat5').textContent = `₹${stats.total_revenue_inr.toLocaleString('en-IN')}`;
+    loadUsers();
+    loadPayments();
+  } catch (err) {
+    showToast('Failed to load admin data: ' + err.message, 'error');
+  }
+}
+
+async function loadUsers() {
+  const tbody = document.getElementById('usersTableBody');
+  tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4"><span class="spinner-border spinner-border-sm me-2"></span>Loading…</td></tr>';
+  try {
+    const users = await apiCall('GET', '/admin/users');
+    if (!users.length) { tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-3">No users found</td></tr>'; return; }
+    tbody.innerHTML = users.map(u => `
+      <tr>
+        <td>${u.id}</td>
+        <td style="font-size:0.85rem">${u.email}</td>
+        <td>${u.username}</td>
+        <td>${u.is_premium ? '<span class="badge-pro">PRO</span>' : '<span class="badge-free">FREE</span>'}</td>
+        <td>${u.ats_scans_used}</td>
+        <td style="font-size:0.8rem">${new Date(u.created_at).toLocaleDateString()}</td>
+        <td>
+          <button class="btn btn-sm me-1" style="background:rgba(255,214,10,0.1);border:1px solid rgba(255,214,10,0.3);color:#ffd60a;font-size:0.75rem;padding:0.2rem 0.6rem;border-radius:6px" onclick="togglePremium(${u.id})">
+            ${u.is_premium ? 'Revoke Pro' : 'Grant Pro'}
+          </button>
+          <button class="btn btn-sm" style="background:rgba(239,35,60,0.1);border:1px solid rgba(239,35,60,0.3);color:#ef233c;font-size:0.75rem;padding:0.2rem 0.6rem;border-radius:6px" onclick="toggleActive(${u.id})">
+            ${u.is_active ? 'Disable' : 'Enable'}
+          </button>
+        </td>
+      </tr>`).join('');
+  } catch(err) {
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger py-3">${err.message}</td></tr>`;
+  }
+}
+
+async function loadPayments() {
+  const tbody = document.getElementById('paymentsTableBody');
+  try {
+    const payments = await apiCall('GET', '/admin/payments');
+    if (!payments.length) { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">No payments found</td></tr>'; return; }
+    tbody.innerHTML = payments.map(p => {
+      const statusColors = { success:'#06d6a0', pending:'#ffd60a', failed:'#ef233c' };
+      const c = statusColors[p.status] || '#9898b0';
+      return `<tr>
+        <td>${p.id}</td>
+        <td>${p.user_id}</td>
+        <td style="text-transform:capitalize">${p.plan}</td>
+        <td>₹${p.amount}</td>
+        <td><span style="color:${c};font-weight:600;font-size:0.85rem">${p.status}</span></td>
+        <td style="font-size:0.8rem">${new Date(p.created_at).toLocaleDateString()}</td>
+      </tr>`;
+    }).join('');
+  } catch(err) {
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger py-3">${err.message}</td></tr>`;
+  }
+}
+
+async function togglePremium(userId) {
+  try {
+    await apiCall('PUT', `/admin/users/${userId}/toggle-premium`);
+    showToast('User plan updated', 'success');
+    loadUsers();
+  } catch(err) { showToast(err.message, 'error'); }
+}
+
+async function toggleActive(userId) {
+  try {
+    await apiCall('PUT', `/admin/users/${userId}/toggle-active`);
+    showToast('User status updated', 'success');
+    loadUsers();
+  } catch(err) { showToast(err.message, 'error'); }
+}
+
+document.addEventListener('DOMContentLoaded', loadAdminData);
+</script>
+{% endblock %}

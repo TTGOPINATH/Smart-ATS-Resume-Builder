@@ -1,0 +1,403 @@
+{% extends "base.html" %}
+{% block title %}Resume Builder — Smart ATS{% endblock %}
+{% block content %}
+
+<div class="container-xl py-4">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+    <div>
+      <h1 class="mb-0" style="font-size:1.75rem">Resume Builder</h1>
+      <p class="text-secondary small mb-0">Build your ATS-optimized resume step by step</p>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-light" id="saveDraftBtn" onclick="saveResume(false)"><i class="bi bi-save me-1"></i>Save Draft</button>
+      <button class="btn btn-primary" onclick="saveResume(true)"><i class="bi bi-check2-all me-1"></i>Save & Score</button>
+    </div>
+  </div>
+
+  <!-- Steps -->
+  <div class="builder-steps">
+    <div class="step-item">
+      <button class="step-btn active" id="step-btn-1" onclick="goStep(1)"><i class="bi bi-person"></i> Personal</button>
+    </div>
+    <div class="step-divider"></div>
+    <div class="step-item">
+      <button class="step-btn" id="step-btn-2" onclick="goStep(2)"><i class="bi bi-briefcase"></i> Experience</button>
+    </div>
+    <div class="step-divider"></div>
+    <div class="step-item">
+      <button class="step-btn" id="step-btn-3" onclick="goStep(3)"><i class="bi bi-mortarboard"></i> Education</button>
+    </div>
+    <div class="step-divider"></div>
+    <div class="step-item">
+      <button class="step-btn" id="step-btn-4" onclick="goStep(4)"><i class="bi bi-tools"></i> Skills</button>
+    </div>
+    <div class="step-divider"></div>
+    <div class="step-item">
+      <button class="step-btn" id="step-btn-5" onclick="goStep(5)"><i class="bi bi-code-slash"></i> Projects</button>
+    </div>
+    <div class="step-divider"></div>
+    <div class="step-item">
+      <button class="step-btn" id="step-btn-6" onclick="goStep(6)"><i class="bi bi-award"></i> Certs</button>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+
+      <!-- Step 1: Personal -->
+      <div id="step-1" class="step-panel">
+        <div class="ats-card">
+          <div class="section-label"><i class="bi bi-person-badge"></i>Personal Information</div>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Resume Title</label>
+              <input type="text" class="form-control" id="resumeTitle" placeholder="e.g. Software Engineer Resume"/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Full Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="fullName" placeholder="Jane Doe"/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" id="emailField" placeholder="jane@email.com"/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Phone</label>
+              <input type="tel" class="form-control" id="phoneField" placeholder="+91 98765 43210"/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Location</label>
+              <input type="text" class="form-control" id="locationField" placeholder="Bengaluru, India"/>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">LinkedIn URL</label>
+              <input type="url" class="form-control" id="linkedinField" placeholder="linkedin.com/in/janedoe"/>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">GitHub URL</label>
+              <input type="url" class="form-control" id="githubField" placeholder="github.com/janedoe"/>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Website</label>
+              <input type="url" class="form-control" id="websiteField" placeholder="janedoe.dev"/>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Professional Summary</label>
+              <textarea class="form-control" id="summaryField" rows="4" placeholder="2-3 sentences describing your background, key skills, and career goal…"></textarea>
+              <div class="d-flex justify-content-between mt-1"><small class="text-muted">Aim for 80–200 characters</small><small class="text-muted" id="summaryLen">0</small></div>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-end mt-3"><button class="btn btn-primary" onclick="goStep(2)">Next: Experience <i class="bi bi-arrow-right ms-1"></i></button></div>
+      </div>
+
+      <!-- Step 2: Experience -->
+      <div id="step-2" class="step-panel d-none">
+        <div class="ats-card">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="section-label mb-0"><i class="bi bi-briefcase"></i>Work Experience</div>
+          </div>
+          <div id="expContainer"></div>
+          <button class="add-field-btn" onclick="addExperience()"><i class="bi bi-plus-lg"></i>Add Work Experience</button>
+        </div>
+        <div class="d-flex justify-content-between mt-3">
+          <button class="btn btn-outline-light" onclick="goStep(1)"><i class="bi bi-arrow-left me-1"></i>Back</button>
+          <button class="btn btn-primary" onclick="goStep(3)">Next: Education <i class="bi bi-arrow-right ms-1"></i></button>
+        </div>
+      </div>
+
+      <!-- Step 3: Education -->
+      <div id="step-3" class="step-panel d-none">
+        <div class="ats-card">
+          <div class="section-label"><i class="bi bi-mortarboard"></i>Education</div>
+          <div id="eduContainer"></div>
+          <button class="add-field-btn" onclick="addEducation()"><i class="bi bi-plus-lg"></i>Add Education</button>
+        </div>
+        <div class="d-flex justify-content-between mt-3">
+          <button class="btn btn-outline-light" onclick="goStep(2)"><i class="bi bi-arrow-left me-1"></i>Back</button>
+          <button class="btn btn-primary" onclick="goStep(4)">Next: Skills <i class="bi bi-arrow-right ms-1"></i></button>
+        </div>
+      </div>
+
+      <!-- Step 4: Skills -->
+      <div id="step-4" class="step-panel d-none">
+        <div class="ats-card">
+          <div class="section-label"><i class="bi bi-tools"></i>Skills</div>
+          <p class="text-secondary small mb-3">Type a skill and press <kbd style="background:var(--bg-secondary);border:1px solid var(--border);color:var(--text-primary);padding:0.1rem 0.4rem;border-radius:4px">Enter</kbd> or <kbd style="background:var(--bg-secondary);border:1px solid var(--border);color:var(--text-primary);padding:0.1rem 0.4rem;border-radius:4px">,</kbd> to add</p>
+          <div id="skillsContainer" class="d-flex flex-wrap gap-1 align-items-center p-2" style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);min-height:50px;cursor:text" onclick="document.getElementById('skillInput').focus()">
+            <input type="text" id="skillInput" placeholder="e.g. Python, React, AWS…" style="border:none;background:transparent;color:var(--text-primary);outline:none;font-size:0.9rem;min-width:160px;flex:1"/>
+          </div>
+          <input type="hidden" id="skillsHidden"/>
+          <div class="mt-3">
+            <p class="text-muted small mb-2">Quick add common skills:</p>
+            <div class="d-flex flex-wrap gap-1">
+              {% for skill in ['Python','JavaScript','React','Node.js','SQL','Docker','AWS','Git','Java','TypeScript','MongoDB','REST API','Agile','Machine Learning','CSS'] %}
+              <button class="btn btn-sm" style="background:var(--bg-secondary);border:1px solid var(--border);color:var(--text-secondary);font-size:0.78rem;padding:0.2rem 0.6rem;border-radius:999px" onclick="quickAddSkill('{{skill}}')">+ {{skill}}</button>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between mt-3">
+          <button class="btn btn-outline-light" onclick="goStep(3)"><i class="bi bi-arrow-left me-1"></i>Back</button>
+          <button class="btn btn-primary" onclick="goStep(5)">Next: Projects <i class="bi bi-arrow-right ms-1"></i></button>
+        </div>
+      </div>
+
+      <!-- Step 5: Projects -->
+      <div id="step-5" class="step-panel d-none">
+        <div class="ats-card">
+          <div class="section-label"><i class="bi bi-code-slash"></i>Projects</div>
+          <div id="projContainer"></div>
+          <button class="add-field-btn" onclick="addProject()"><i class="bi bi-plus-lg"></i>Add Project</button>
+        </div>
+        <div class="d-flex justify-content-between mt-3">
+          <button class="btn btn-outline-light" onclick="goStep(4)"><i class="bi bi-arrow-left me-1"></i>Back</button>
+          <button class="btn btn-primary" onclick="goStep(6)">Next: Certifications <i class="bi bi-arrow-right ms-1"></i></button>
+        </div>
+      </div>
+
+      <!-- Step 6: Certifications -->
+      <div id="step-6" class="step-panel d-none">
+        <div class="ats-card">
+          <div class="section-label"><i class="bi bi-award"></i>Certifications</div>
+          <div id="certContainer"></div>
+          <button class="add-field-btn" onclick="addCert()"><i class="bi bi-plus-lg"></i>Add Certification</button>
+        </div>
+        <div class="d-flex justify-content-between mt-3">
+          <button class="btn btn-outline-light" onclick="goStep(5)"><i class="bi bi-arrow-left me-1"></i>Back</button>
+          <button class="btn btn-success btn-lg" onclick="saveResume(true)"><i class="bi bi-check2-all me-2"></i>Save & Analyze</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Sidebar tips -->
+    <div class="col-lg-4 d-none d-lg-block">
+      <div class="ats-card mb-3" style="position:sticky;top:80px">
+        <div class="section-label"><i class="bi bi-lightbulb"></i>ATS Tips</div>
+        <div id="stepTips"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script>
+const TIPS = {
+  1: ['Use your real full name — no nicknames','Include a professional email address','Keep your summary under 200 words','Add LinkedIn to boost visibility'],
+  2: ['Use bullet points for each responsibility','Quantify achievements: "Led team of 5", "Increased revenue 25%"','List most recent experience first','Include dates in MM/YYYY format'],
+  3: ['Include GPA if above 3.5','List relevant coursework if you\'re a new grad','Education goes below experience if you have 2+ years of work'],
+  4: ['Include both technical and soft skills','Match skills from the job description','Group by category: Languages, Frameworks, Tools','Aim for 10–20 skills'],
+  5: ['Include GitHub/live links for projects','Mention technologies used','Describe the problem it solves','Use past tense for completed projects'],
+  6: ['Include AWS, Google Cloud, or other cloud certs','Add the year you earned each cert','Focus on certs relevant to your target role']
+};
+
+let currentStep = 1;
+let resumeId = null;
+let skillsController = null;
+
+function goStep(n) {
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.add('d-none'));
+  document.getElementById(`step-${n}`)?.classList.remove('d-none');
+  document.querySelectorAll('.step-btn').forEach((b,i) => {
+    b.classList.remove('active','completed');
+    if (i + 1 < n) b.classList.add('completed');
+    if (i + 1 === n) b.classList.add('active');
+  });
+  currentStep = n;
+  const tips = TIPS[n] || [];
+  document.getElementById('stepTips').innerHTML = tips.map(t =>
+    `<div class="d-flex gap-2 align-items-start mb-2"><i class="bi bi-check-circle-fill text-accent mt-1" style="font-size:0.8rem;flex-shrink:0"></i><small class="text-secondary">${t}</small></div>`
+  ).join('');
+}
+
+function addExperience(data = {}) {
+  const container = document.getElementById('expContainer');
+  const idx = container.children.length;
+  const div = document.createElement('div');
+  div.className = 'dynamic-field-group';
+  div.dataset.idx = idx;
+  div.innerHTML = `
+    <button class="remove-group-btn" onclick="this.closest('.dynamic-field-group').remove()"><i class="bi bi-trash"></i></button>
+    <div class="row g-2">
+      <div class="col-md-6"><label class="form-label">Job Title</label><input type="text" class="form-control exp-role" value="${data.role||''}"/></div>
+      <div class="col-md-6"><label class="form-label">Company</label><input type="text" class="form-control exp-company" value="${data.company||''}"/></div>
+      <div class="col-md-5"><label class="form-label">Start Date</label><input type="text" class="form-control exp-start" placeholder="Jan 2022" value="${data.start_date||''}"/></div>
+      <div class="col-md-5"><label class="form-label">End Date</label><input type="text" class="form-control exp-end" placeholder="Dec 2023 or Present" value="${data.end_date||''}" ${data.is_current?'disabled':''}/></div>
+      <div class="col-md-2 d-flex align-items-end"><div class="form-check mb-2"><input class="form-check-input exp-current" type="checkbox" ${data.is_current?'checked':''} onchange="toggleCurrent(this)"/><label class="form-check-label text-secondary small ms-1">Current</label></div></div>
+      <div class="col-12"><label class="form-label">Description / Responsibilities</label><textarea class="form-control exp-desc" rows="3" placeholder="• Led development of…&#10;• Improved performance by…">${data.description||''}</textarea></div>
+    </div>`;
+  container.appendChild(div);
+}
+
+function toggleCurrent(cb) {
+  const endInput = cb.closest('.dynamic-field-group').querySelector('.exp-end');
+  endInput.disabled = cb.checked;
+  if (cb.checked) endInput.value = '';
+}
+
+function addEducation(data = {}) {
+  const container = document.getElementById('eduContainer');
+  const div = document.createElement('div');
+  div.className = 'dynamic-field-group';
+  div.innerHTML = `
+    <button class="remove-group-btn" onclick="this.closest('.dynamic-field-group').remove()"><i class="bi bi-trash"></i></button>
+    <div class="row g-2">
+      <div class="col-12"><label class="form-label">Institution</label><input type="text" class="form-control edu-inst" value="${data.institution||''}"/></div>
+      <div class="col-md-6"><label class="form-label">Degree</label><input type="text" class="form-control edu-degree" placeholder="B.Tech / B.Sc / MBA…" value="${data.degree||''}"/></div>
+      <div class="col-md-6"><label class="form-label">Field of Study</label><input type="text" class="form-control edu-field" placeholder="Computer Science" value="${data.field||''}"/></div>
+      <div class="col-md-4"><label class="form-label">Start Year</label><input type="text" class="form-control edu-start" placeholder="2018" value="${data.start_year||''}"/></div>
+      <div class="col-md-4"><label class="form-label">End Year</label><input type="text" class="form-control edu-end" placeholder="2022" value="${data.end_year||''}"/></div>
+      <div class="col-md-4"><label class="form-label">GPA (optional)</label><input type="text" class="form-control edu-gpa" placeholder="8.5 / 10" value="${data.gpa||''}"/></div>
+    </div>`;
+  container.appendChild(div);
+}
+
+function addProject(data = {}) {
+  const container = document.getElementById('projContainer');
+  const div = document.createElement('div');
+  div.className = 'dynamic-field-group';
+  div.innerHTML = `
+    <button class="remove-group-btn" onclick="this.closest('.dynamic-field-group').remove()"><i class="bi bi-trash"></i></button>
+    <div class="row g-2">
+      <div class="col-md-6"><label class="form-label">Project Name</label><input type="text" class="form-control proj-name" value="${data.name||''}"/></div>
+      <div class="col-md-6"><label class="form-label">Technologies Used</label><input type="text" class="form-control proj-tech" placeholder="Python, React, AWS" value="${data.technologies||''}"/></div>
+      <div class="col-12"><label class="form-label">Description</label><textarea class="form-control proj-desc" rows="2" placeholder="What does this project do? What problem does it solve?">${data.description||''}</textarea></div>
+      <div class="col-12"><label class="form-label">Live URL / GitHub</label><input type="url" class="form-control proj-url" placeholder="https://github.com/you/project" value="${data.url||''}"/></div>
+    </div>`;
+  container.appendChild(div);
+}
+
+function addCert(data = {}) {
+  const container = document.getElementById('certContainer');
+  const div = document.createElement('div');
+  div.className = 'dynamic-field-group';
+  div.innerHTML = `
+    <button class="remove-group-btn" onclick="this.closest('.dynamic-field-group').remove()"><i class="bi bi-trash"></i></button>
+    <div class="row g-2">
+      <div class="col-md-6"><label class="form-label">Certification Name</label><input type="text" class="form-control cert-name" value="${data.name||''}"/></div>
+      <div class="col-md-4"><label class="form-label">Issuing Organization</label><input type="text" class="form-control cert-issuer" placeholder="AWS, Google, Coursera…" value="${data.issuer||''}"/></div>
+      <div class="col-md-2"><label class="form-label">Year</label><input type="text" class="form-control cert-year" placeholder="2024" value="${data.year||''}"/></div>
+    </div>`;
+  container.appendChild(div);
+}
+
+function quickAddSkill(skill) {
+  if (skillsController) {
+    const existing = skillsController.getSkills();
+    if (!existing.includes(skill)) skillsController.setSkills([...existing, skill]);
+  }
+}
+
+function collectFormData() {
+  const experience = Array.from(document.querySelectorAll('#expContainer .dynamic-field-group')).map(g => ({
+    role: g.querySelector('.exp-role')?.value || '',
+    company: g.querySelector('.exp-company')?.value || '',
+    start_date: g.querySelector('.exp-start')?.value || '',
+    end_date: g.querySelector('.exp-end')?.value || '',
+    is_current: g.querySelector('.exp-current')?.checked || false,
+    description: g.querySelector('.exp-desc')?.value || ''
+  }));
+
+  const education = Array.from(document.querySelectorAll('#eduContainer .dynamic-field-group')).map(g => ({
+    institution: g.querySelector('.edu-inst')?.value || '',
+    degree: g.querySelector('.edu-degree')?.value || '',
+    field: g.querySelector('.edu-field')?.value || '',
+    start_year: g.querySelector('.edu-start')?.value || '',
+    end_year: g.querySelector('.edu-end')?.value || '',
+    gpa: g.querySelector('.edu-gpa')?.value || ''
+  }));
+
+  const projects = Array.from(document.querySelectorAll('#projContainer .dynamic-field-group')).map(g => ({
+    name: g.querySelector('.proj-name')?.value || '',
+    technologies: g.querySelector('.proj-tech')?.value || '',
+    description: g.querySelector('.proj-desc')?.value || '',
+    url: g.querySelector('.proj-url')?.value || ''
+  }));
+
+  const certifications = Array.from(document.querySelectorAll('#certContainer .dynamic-field-group')).map(g => ({
+    name: g.querySelector('.cert-name')?.value || '',
+    issuer: g.querySelector('.cert-issuer')?.value || '',
+    year: g.querySelector('.cert-year')?.value || ''
+  }));
+
+  return {
+    title: document.getElementById('resumeTitle').value || 'My Resume',
+    full_name: document.getElementById('fullName').value,
+    email: document.getElementById('emailField').value,
+    phone: document.getElementById('phoneField').value,
+    location: document.getElementById('locationField').value,
+    linkedin: document.getElementById('linkedinField').value,
+    github: document.getElementById('githubField').value,
+    website: document.getElementById('websiteField').value,
+    summary: document.getElementById('summaryField').value,
+    skills: skillsController ? skillsController.getSkills() : [],
+    experience, education, projects, certifications
+  };
+}
+
+async function saveResume(andScore) {
+  if (!requireAuth()) return;
+  showLoading('Saving resume…');
+  const data = collectFormData();
+  try {
+    let result;
+    if (resumeId) {
+      result = await apiCall('PUT', `/resume/${resumeId}`, data);
+    } else {
+      result = await apiCall('POST', '/resume/', data);
+      resumeId = result.id;
+      // Update URL without reload
+      window.history.replaceState({}, '', `/builder?id=${resumeId}`);
+    }
+    hideLoading();
+    showToast('Resume saved!', 'success');
+    if (andScore) setTimeout(() => window.location.href = `/results?id=${resumeId}`, 500);
+  } catch (err) {
+    hideLoading();
+    showToast(err.message || 'Save failed', 'error');
+  }
+}
+
+async function loadExistingResume(id) {
+  try {
+    const r = await apiCall('GET', `/resume/${id}`);
+    resumeId = r.id;
+    document.getElementById('resumeTitle').value = r.title || '';
+    document.getElementById('fullName').value = r.full_name || '';
+    document.getElementById('emailField').value = r.email || '';
+    document.getElementById('phoneField').value = r.phone || '';
+    document.getElementById('locationField').value = r.location || '';
+    document.getElementById('linkedinField').value = r.linkedin || '';
+    document.getElementById('githubField').value = r.github || '';
+    document.getElementById('websiteField').value = r.website || '';
+    document.getElementById('summaryField').value = r.summary || '';
+    // Load arrays
+    (r.experience || []).forEach(e => addExperience(e));
+    (r.education || []).forEach(e => addEducation(e));
+    (r.projects || []).forEach(p => addProject(p));
+    (r.certifications || []).forEach(c => addCert(c));
+    // Load skills
+    if (skillsController && r.skills) skillsController.setSkills(r.skills);
+  } catch (err) {
+    showToast('Failed to load resume: ' + err.message, 'error');
+  }
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+  if (!requireAuth()) return;
+  skillsController = initSkillsInput('skillsContainer', 'skillInput', 'skillsHidden');
+  goStep(1);
+  // Summary char counter
+  document.getElementById('summaryField').addEventListener('input', function() {
+    document.getElementById('summaryLen').textContent = this.value.length;
+  });
+  // Load existing resume if ?id= in URL
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  if (id) loadExistingResume(parseInt(id));
+});
+</script>
+{% endblock %}
