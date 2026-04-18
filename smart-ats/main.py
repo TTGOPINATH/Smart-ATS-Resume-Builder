@@ -20,7 +20,7 @@ os.makedirs("uploads", exist_ok=True)
 app = FastAPI(
     title="Smart ATS Resume Builder & Optimizer",
     description="AI-powered resume builder with ATS optimization",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 app.add_middleware(
@@ -43,42 +43,55 @@ app.include_router(ats.router, prefix="/ats", tags=["ATS"])
 app.include_router(payment.router, prefix="/payment", tags=["Payment"])
 app.include_router(admin.router, prefix="/admin", tags=["Admin"])
 
+
 @app.get("/", response_class=HTMLResponse)
 async def landing_page(request: Request):
     return templates.TemplateResponse("landing.html", {"request": request})
+
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard(request: Request):
     return templates.TemplateResponse("dashboard.html", {"request": request})
 
+
 @app.get("/builder", response_class=HTMLResponse)
 async def builder(request: Request):
     return templates.TemplateResponse("builder.html", {"request": request})
+
 
 @app.get("/upload", response_class=HTMLResponse)
 async def upload_page(request: Request):
     return templates.TemplateResponse("upload.html", {"request": request})
 
+
 @app.get("/results", response_class=HTMLResponse)
 async def results_page(request: Request):
     return templates.TemplateResponse("results.html", {"request": request})
+
 
 @app.get("/pricing", response_class=HTMLResponse)
 async def pricing_page(request: Request):
     return templates.TemplateResponse("pricing.html", {"request": request})
 
+
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
+
 
 @app.get("/register", response_class=HTMLResponse)
 async def register_page(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
 
+
 @app.get("/admin/panel", response_class=HTMLResponse)
 async def admin_panel(request: Request):
     return templates.TemplateResponse("admin.html", {"request": request})
 
+
 @app.get("/payment/success", response_class=HTMLResponse)
 async def payment_success_page(request: Request):
     return templates.TemplateResponse("payment_success.html", {"request": request})
+
+
+app.run(host="0.0.0.0", port=10000)
